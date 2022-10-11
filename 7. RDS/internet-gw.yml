@@ -1,0 +1,18 @@
+Resources:
+
+  rdsigw:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties: {}
+    
+  RDSVPCGatewayAttachment:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !ImportValue rds-vpc-id
+      InternetGatewayId: !Ref rdsigw
+      
+Outputs:
+   rdsigw:
+    Description: The ID of the rds internet gw
+    Value: !Ref rdsigw
+    Export:
+      Name: rds-igw-id

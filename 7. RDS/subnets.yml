@@ -1,0 +1,69 @@
+Resources:
+  subnetPublicA: 
+    Type: AWS::EC2::Subnet
+    Properties: 
+      AvailabilityZone: us-east-1a
+      CidrBlock: 10.0.10.0/24
+      MapPublicIpOnLaunch: True
+      Tags: 
+        - Key: purpose
+          Value: rds  
+      VpcId: !ImportValue rds-vpc-id
+  subnetdbA: 
+    Type: AWS::EC2::Subnet
+    Properties: 
+      AvailabilityZone: us-east-1a
+      CidrBlock: 10.0.11.0/24
+      Tags: 
+        - Key: purpose
+          Value: rds  
+      VpcId: !ImportValue rds-vpc-id
+  subnetdbB: 
+    Type: AWS::EC2::Subnet
+    Properties: 
+      AvailabilityZone: us-east-1b
+      CidrBlock: 10.0.12.0/24
+      Tags: 
+        - Key: purpose
+          Value: rds  
+      VpcId: !ImportValue rds-vpc-id
+ 
+  RdsPublicRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !ImportValue rds-vpc-id
+  
+  PublicInternetRoute:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref RdsPublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !ImportValue rds-igw-id
+      
+  DBRouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref subnetPublicA
+      RouteTableId: !Ref RdsPublicRouteTable 
+
+  RdsDBouteTableA:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !ImportValue rds-vpc-id
+ 
+  DBRouteTableAssociationA:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref subnetdbA
+      RouteTableId: !Ref RdsDBouteTableA 
+     
+  RdsDBouteTableB:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !ImportValue rds-vpc-id
+ 
+  DBRouteTableAssociationB:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref subnetdbB
+      RouteTableId: !Ref RdsDBouteTableB 
